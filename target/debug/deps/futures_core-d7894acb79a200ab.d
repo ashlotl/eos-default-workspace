@@ -1,0 +1,11 @@
+/home/wurst/Documents/Code/Rust/workspace-tbd/target/debug/deps/futures_core-d7894acb79a200ab.rmeta: /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/lib.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/future.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/stream.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/mod.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/poll.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/__internal/mod.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/__internal/atomic_waker.rs
+
+/home/wurst/Documents/Code/Rust/workspace-tbd/target/debug/deps/futures_core-d7894acb79a200ab.d: /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/lib.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/future.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/stream.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/mod.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/poll.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/__internal/mod.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/__internal/atomic_waker.rs
+
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/lib.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/future.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/stream.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/mod.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/poll.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/__internal/mod.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-core-0.3.16/src/task/__internal/atomic_waker.rs:

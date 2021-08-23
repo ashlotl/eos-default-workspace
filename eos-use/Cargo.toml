@@ -1,0 +1,20 @@
+[package]
+name = "eos-use"
+version = "0.1.0"
+authors = ["ashlotl <thesupremeliverwurst@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+crossbeam-channel = { version = "0.5.1" }
+libloading = { version = "0.7.0" }
+mopa = { version = "0.2.2" }
+parking_lot = { version = "0.11.1" }
+serde = { version = "1.0.77", features = ["derive"] }
+
+[features]
+use_static_modules = []

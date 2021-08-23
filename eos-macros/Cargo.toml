@@ -1,0 +1,17 @@
+[package]
+name = "eos-macros"
+version = "0.1.0"
+authors = ["ashlotl <thesupremeliverwurst@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+serde_json = "1.0.66"
+syn = "1.0.74"
+
+#path dependencies
+eos-macros-use = {path = "../eos-macros-use"}

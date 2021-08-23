@@ -1,0 +1,11 @@
+/home/wurst/Documents/Code/Rust/workspace-tbd/target/debug/deps/futures_task-3aa07a7d725a078f.rmeta: /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/lib.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/spawn.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/arc_wake.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/waker.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/waker_ref.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/future_obj.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/noop_waker.rs
+
+/home/wurst/Documents/Code/Rust/workspace-tbd/target/debug/deps/futures_task-3aa07a7d725a078f.d: /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/lib.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/spawn.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/arc_wake.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/waker.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/waker_ref.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/future_obj.rs /home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/noop_waker.rs
+
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/lib.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/spawn.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/arc_wake.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/waker.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/waker_ref.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/future_obj.rs:
+/home/wurst/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-task-0.3.16/src/noop_waker.rs:

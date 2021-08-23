@@ -1,0 +1,20 @@
+[package]
+name = "eos-runtime"
+version = "0.1.0"
+authors = ["ashlotl <thesupremeliverwurst@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures = { version = "0.3.16" }
+libloading = { version = "0.7.0" }
+parking_lot = { version = "0.11.1" }
+
+#local dependencies
+eos-macros = { path = "../eos-macros" }
+eos-use = { path = "../eos-use" }
+eos-voxel-renderer = { path = "../systems/renderers/eos-voxel-renderer", optional = true }
+
+[features]
+use_static_modules = ["eos-voxel-renderer"]

@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+    "eos-macros",
+    "eos-macros-use",
+    "eos-runtime",
+    "eos-use",
+    "systems/renderers/eos-voxel-renderer",
+]
