@@ -15,4 +15,5 @@ ron = { version = "0.6.4" }
 serde = { version = "1.0.77", features = ["derive"] }
 
 #path dependencies
+eos-macros = { path = "../../../eos-macros" }
 eos-use = { path = "../../../eos-use" }

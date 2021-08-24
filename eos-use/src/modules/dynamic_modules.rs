@@ -25,17 +25,19 @@ pub struct EosModuleDynamic {
     pub objekt_remove_all:
         libloading::Symbol<'static, <Self as EosModuleFnTypes>::FnObjektRemoveAll>,
     pub objekts_len: libloading::Symbol<'static, <Self as EosModuleFnTypes>::FnObjektsLen>,
+    pub objekts_get_keys: libloading::Symbol<'static, <Self as EosModuleFnTypes>::FnObjektsGetKeys>,
 }
 
 impl EosModuleFnTypes for EosModuleDynamic {
     type FnModuleInit =
         extern "C" fn(module_list_ptr: Arc<RwLock<BTreeMap<String, Arc<EosModuleDynamic>>>>);
-    type FnObjektAdd = fn(name: String);
+    type FnObjektAdd = fn(name: String, deserialize_from: String);
     type FnObjektGet = fn(name: &String) -> (Arc<dyn EosObjekt>, usize);
-    type FnObjektGetInvocations = fn(usize) -> InvocationTemplateInformation;
+    type FnObjektGetInvocations = fn(String) -> InvocationTemplateInformation;
     type FnObjektRemove = fn(name: &String);
     type FnObjektRemoveAll = fn();
     type FnObjektsLen = fn() -> usize;
+    type FnObjektsGetKeys = fn() -> Vec<String>;
 }
 
 impl EosModuleDynamic {
@@ -49,18 +51,18 @@ impl EosModuleDynamic {
         }))
     }
 
-    pub fn call_objekt_add(&self, name: String) -> Result<(), String> {
+    pub fn call_objekt_add(&self, name: String, deserialize_from: String) -> Result<(), String> {
         errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
-            (self.objekt_add)(name)
+            (self.objekt_add)(name, deserialize_from)
         }))
     }
 
     pub fn call_objekt_get_invocations(
         &self,
-        index: usize,
+        name: String,
     ) -> Result<InvocationTemplateInformation, String> {
         errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
-            (self.objekt_get_invocations)(index)
+            (self.objekt_get_invocations)(name)
         }))
     }
 
@@ -79,6 +81,12 @@ impl EosModuleDynamic {
     pub fn call_objekts_len(&self) -> Result<usize, String> {
         errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
             (self.objekts_len)()
+        }))
+    }
+
+    pub fn call_objekts_get_keys(&self) -> Result<Vec<String>, String> {
+        errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
+            (self.objekts_get_keys)()
         }))
     }
 }

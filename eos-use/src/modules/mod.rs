@@ -19,5 +19,6 @@ pub trait EosModuleFnTypes {
     type FnObjektGetInvocations;
     type FnObjektRemove;
     type FnObjektRemoveAll;
+    type FnObjektsGetKeys;
     type FnObjektsLen;
 }

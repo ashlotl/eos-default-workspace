@@ -51,6 +51,7 @@ name = "eos-macros"
 version = "0.1.0"
 dependencies = [
  "eos-macros-use",
+ "quote",
  "serde_json",
  "syn",
 ]
@@ -83,6 +84,7 @@ dependencies = [
  "libloading",
  "mopa",
  "parking_lot",
+ "ron",
  "serde",
 ]
 
@@ -90,6 +92,7 @@ dependencies = [
 name = "eos-voxel-renderer"
 version = "0.1.0"
 dependencies = [
+ "eos-macros",
  "eos-use",
  "parking_lot",
  "ron",

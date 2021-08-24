@@ -20,16 +20,18 @@ pub struct EosModuleStatic {
     objekt_remove: <Self as EosModuleFnTypes>::FnObjektRemove,
     objekt_remove_all: <Self as EosModuleFnTypes>::FnObjektRemoveAll,
     objekts_len: <Self as EosModuleFnTypes>::FnObjektsLen,
+    objekts_get_keys: <Self as EosModuleFnTypes>::FnObjektsGetKeys,
 }
 
 impl EosModuleFnTypes for EosModuleStatic {
     type FnModuleInit = fn(module_list_ptr: Arc<RwLock<BTreeMap<String, Arc<EosModuleStatic>>>>);
-    type FnObjektAdd = fn(name: String);
+    type FnObjektAdd = fn(name: String, deserialize_from: String);
     type FnObjektGet = fn(name: &String) -> Arc<RwLock<dyn EosObjekt>>;
-    type FnObjektGetInvocations = fn(usize) -> InvocationTemplateInformation;
+    type FnObjektGetInvocations = fn(String) -> InvocationTemplateInformation;
     type FnObjektRemove = fn(name: &String);
     type FnObjektRemoveAll = fn();
     type FnObjektsLen = fn() -> usize;
+    type FnObjektsGetKeys = fn() -> Vec<String>;
 }
 
 impl EosModuleStatic {
@@ -41,6 +43,7 @@ impl EosModuleStatic {
         objekt_remove: <Self as EosModuleFnTypes>::FnObjektRemove,
         objekt_remove_all: <Self as EosModuleFnTypes>::FnObjektRemoveAll,
         objekts_len: <Self as EosModuleFnTypes>::FnObjektsLen,
+        objekts_get_keys: <Self as EosModuleFnTypes>::FnObjektsGetKeys,
     ) -> Self {
         Self {
             config: EosModuleConfig {
@@ -53,6 +56,7 @@ impl EosModuleStatic {
             objekt_remove,
             objekt_remove_all,
             objekts_len,
+            objekts_get_keys,
         }
     }
 
@@ -66,9 +70,9 @@ impl EosModuleStatic {
         }))
     }
 
-    pub fn call_objekt_add(&self, name: String) -> Result<(), String> {
+    pub fn call_objekt_add(&self, name: String, deserialize_from: String) -> Result<(), String> {
         errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
-            (self.objekt_add)(name)
+            (self.objekt_add)(name, deserialize_from)
         }))
     }
 
@@ -80,10 +84,10 @@ impl EosModuleStatic {
 
     pub fn call_objekt_get_invocations(
         &self,
-        index: usize,
+        name: String,
     ) -> Result<InvocationTemplateInformation, String> {
         errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
-            (self.objekt_get_invocations)(index)
+            (self.objekt_get_invocations)(name)
         }))
     }
 
@@ -102,6 +106,12 @@ impl EosModuleStatic {
     pub fn call_objekts_len(&self) -> Result<usize, String> {
         errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
             (self.objekts_len)()
+        }))
+    }
+
+    pub fn call_objekts_get_keys(&self) -> Result<Vec<String>, String> {
+        errors::convert_result_error_to_string_send(std::panic::catch_unwind(|| {
+            (self.objekts_get_keys)()
         }))
     }
 }

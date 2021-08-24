@@ -10,8 +10,9 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
+quote = "1.0.9"
 serde_json = "1.0.66"
 syn = "1.0.74"
 
 #path dependencies
-eos-macros-use = {path = "../eos-macros-use"}
+eos-macros-use = { path = "../eos-macros-use" }

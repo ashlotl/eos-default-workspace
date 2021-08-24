@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, sync::Arc, thread};
+use std::{collections::BTreeMap, panic::AssertUnwindSafe, sync::Arc, thread};
 
 use parking_lot::{Condvar, Mutex, RwLock};
 
@@ -24,41 +24,63 @@ impl BuiltInvoker {
             let invocation = invocation.clone();
             let control_flow = control_flow.clone();
             handles.push(thread::spawn(move || {
-
                 let name = invocation.0;
                 let invocation = invocation.1.lock();
+                let objekt = match (invocation.objekt_getter)(invocation.objekt_name.clone()) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        println!("A thread was stopped: {}", e);
+                        return;
+                    }
+                };
                 let fn_ptr = invocation.fn_ptr;
                 loop {
+                    println!("invocation: {}", name);
                     invocation.wait_for_parents();
+                    println!("parent go-ahead");
                     if let InvokerControlFlow::Continue = *control_flow.read() {
+                        println!("continue");
                     } else {
+                        println!("stop");
                         break;
                     }
-                    let res = std::panic::catch_unwind(move || fn_ptr());
-                    match res {
-                        Ok(Ok(v)) => {
-                            *control_flow.write() = v;
-                            if invocation.children.len() == 0 {
-                                if invocation.parents.len() == 0 {
-                                    break;
-                                }
-                                continue;
+                    let guard = objekt.read();
+                    let poisoned = guard.poisoned();
+                    std::mem::drop(guard);
+                    if !poisoned {
+                        let objekt_safe = AssertUnwindSafe(objekt.clone());
+                        let res = std::panic::catch_unwind(move || fn_ptr((*objekt_safe).clone()));
+
+                        match res {
+                            Ok(Ok(v)) => {
+                                *control_flow.write() = v;
                             }
-                            invocation.signal_children();
-                        }
-                        Ok(Err(v)) => {
-                            println!("Invocation `{}` reported an error, stopping associated thread: `{}`", name, v);
+                            Ok(Err(v)) => {
+                                let mut guard = objekt.write();
+                                guard.set_poisoned();
+                                println!(
+                                    "Invocation `{}` reported an error, stopping executions: `{}`",
+                                    name, v
+                                );
+                            }
+                            Err(e) => {
+                                let mut guard = objekt.write();
+                                guard.set_poisoned();
+                                println!(
+                                    "Error in invocation `{}`, stopping executions: `{}`",
+                                    name,
+                                    errors::convert_error_to_string(e)
+                                );
+                            }
+                        };
+                    }
+                    if invocation.children.len() == 0 {
+                        if invocation.parents.len() == 0 {
                             break;
                         }
-                        Err(e) => {
-                            println!(
-                                "Error in invocation `{}`, stopping associated thread: `{}`",
-                                name,
-                                errors::convert_error_to_string(e)
-                            );
-                            break;
-                        }
-                    };
+                        continue;
+                    }
+                    invocation.signal_children();
                 }
             }));
         }
@@ -107,7 +129,7 @@ impl Invoker {
         for i in 0..entrypoints.len() {
             if !invocations.contains_key(&entrypoints[i]) {
                 return Err(String::from(format!(
-                    "Invocation with entrypoint parent `{}` is not found in invocation map",
+                    "Entrypoint `{}` is not found in invocation map",
                     entrypoints[i]
                 )));
             }
@@ -205,6 +227,8 @@ impl Invoker {
                 let put = Invocation {
                     children: vec![],
                     fn_ptr: template.fn_ptr,
+                    objekt_getter: template.objekt_getter,
+                    objekt_name: template.objekt_name.clone(),
                     parents: vec![],
                 };
                 building_map.insert(template_name.clone(), put.clone());
@@ -220,6 +244,8 @@ impl Invoker {
                     let put = Invocation {
                         children: vec![],
                         fn_ptr: template_building.fn_ptr,
+                        objekt_getter: template_building.objekt_getter,
+                        objekt_name: template_building.objekt_name.clone(),
                         parents: vec![],
                     };
                     building_map.insert(parent.clone(), put.clone());

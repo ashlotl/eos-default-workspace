@@ -61,6 +61,10 @@ pub fn load_synchronous(path_str: &str) -> Result<Arc<EosModuleHandle>, String> 
                 Ok(v) => v,
                 Err(e) => return Err(format!("{}", e)),
             },
+            objekts_get_keys: match (*lib_ptr).get(b"eos_objekts_get_keys") {
+                Ok(v) => v,
+                Err(e) => return Err(format!("{}", e)),
+            },
         };
         println!("done");
         Ok(Arc::new(ret))

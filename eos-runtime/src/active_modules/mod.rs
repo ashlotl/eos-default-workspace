@@ -42,14 +42,17 @@ pub fn load_modules() -> Result<impl Future, String> {
 
     for module in &*modules.read() {
         println!("adding objekts from module: {}", module.0);
-        let len = module.1.call_objekts_len()?;
-        for i in 0..len {
-            let mut info = module.1.call_objekt_get_invocations(i)?;
+        let keys = module.1.call_objekts_get_keys()?;
+        println!("got length");
+        for key in keys {
+            let mut info = module.1.call_objekt_get_invocations(key)?;
+            println!("got invocations");
             entrypoint_list.append(&mut info.entrypoint_list);
             invocation_list.append(&mut info.invocation_list);
         }
     }
 
+    println!("building invoker");
     let mut invoker = Invoker::new();
     invoker.push_invocations(invocation_list);
     invoker.push_entrypoints(entrypoint_list);

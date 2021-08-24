@@ -14,6 +14,7 @@ crossbeam-channel = { version = "0.5.1" }
 libloading = { version = "0.7.0" }
 mopa = { version = "0.2.2" }
 parking_lot = { version = "0.11.1" }
+ron = { version = "0.6.4" }
 serde = { version = "1.0.77", features = ["derive"] }
 
 [features]
