@@ -9,7 +9,7 @@ use eos_use::{
     EosVersion,
 };
 
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 
 use serde::Deserialize;
 
@@ -38,34 +38,37 @@ impl EosObjekt for VoxelRenderer {
         InvocationTemplateInformation {
             invocation_list: vec![
                 InvocationTemplate {
-                    children: vec![format!("{}test", objekt_name)],
-                    name: format!("{}test_link", objekt_name),
-                    parents: vec![format!("{}test", objekt_name)],
+                    children: vec![format!("{}:test", objekt_name)],
+                    name: format!("{}:test_link", objekt_name),
+                    parents: vec![format!("{}:test", objekt_name)],
                     objekt_getter: objekt_getter,
                     objekt_name: objekt_name.clone(),
                     fn_ptr: say_dummy,
                 },
                 InvocationTemplate {
-                    children: vec![],
-                    name: format!("{}test_loose", objekt_name),
-                    parents: vec![format!("{}test", objekt_name)],
+                    children: vec![format!("{}:test", objekt_name)],
+                    name: format!("{}:test_loose", objekt_name),
+                    parents: vec![format!("{}:test", objekt_name)],
                     objekt_getter: objekt_getter,
                     objekt_name: objekt_name.clone(),
                     fn_ptr: say_loose_node,
                 },
                 InvocationTemplate {
                     children: vec![
-                        format!("{}test_link", objekt_name),
-                        format!("{}test_loose", objekt_name),
+                        format!("{}:test_link", objekt_name),
+                        format!("{}:test_loose", objekt_name),
                     ],
-                    name: format!("{}test", objekt_name),
-                    parents: vec![format!("{}test_link", objekt_name)],
+                    name: format!("{}:test", objekt_name),
+                    parents: vec![
+                        format!("{}:test_link", objekt_name),
+                        format!("{}:test_loose", objekt_name),
+                    ],
                     objekt_getter: objekt_getter,
                     objekt_name: objekt_name.clone(),
                     fn_ptr: say_hello,
                 },
             ],
-            entrypoint_list: vec![format!("{}test", objekt_name)],
+            entrypoint_list: vec![format!("{}:test", objekt_name)],
         }
     }
     fn poisoned(&self) -> bool {
@@ -83,12 +86,12 @@ impl EosObjekt for VoxelRenderer {
 
 fn say_dummy(_objekt: Arc<RwLock<dyn EosObjekt>>) -> Result<InvokerControlFlow, String> {
     // println!("dummy invocations, a necessary evil");
-    Ok(InvokerControlFlow::Continue)
+    Ok(InvokerControlFlow::Continue(false))
 }
 
 fn say_hello(_objekt: Arc<RwLock<dyn EosObjekt>>) -> Result<InvokerControlFlow, String> {
     // println!("some stuff");
-    Ok(InvokerControlFlow::Continue)
+    Ok(InvokerControlFlow::Continue(false))
 }
 
 fn say_loose_node(objekt: Arc<RwLock<dyn EosObjekt>>) -> Result<InvokerControlFlow, String> {
@@ -101,5 +104,5 @@ fn say_loose_node(objekt: Arc<RwLock<dyn EosObjekt>>) -> Result<InvokerControlFl
     }
     contents.tick += 1;
     // println!("loose invocation");
-    Ok(InvokerControlFlow::Continue)
+    Ok(InvokerControlFlow::Continue(false))
 }

@@ -1,51 +1,50 @@
 use std::{collections::BTreeMap, panic::AssertUnwindSafe, sync::Arc, thread};
 
-use parking_lot::{Condvar, Mutex, RwLock};
+use parking_lot::{Condvar, Mutex};
 
 use crate::{
     invocations::invocation::{Invocation, InvocationTemplate},
     utils::errors,
 };
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct BuiltInvoker {
     invocations: Vec<(String, Arc<Mutex<Invocation>>)>,
 }
 
 impl BuiltInvoker {
     fn run_impl(&self) {
-        let control_flow = Arc::new(RwLock::new(InvokerControlFlow::Continue));
-
         let mut handles = vec![];
 
         println!("{:?}", self.invocations);
 
         for invocation in &self.invocations {
             let invocation = invocation.clone();
-            let control_flow = control_flow.clone();
             handles.push(thread::spawn(move || {
+                #[allow(unused_assignments)]
+                let mut control_flow = InvokerControlFlow::Continue(false);
                 let name = invocation.0;
                 let invocation = invocation.1.lock();
                 let objekt = match (invocation.objekt_getter)(invocation.objekt_name.clone()) {
                     Ok(v) => v,
                     Err(e) => {
                         println!("A thread was stopped: {}", e);
-                        return;
+                        return InvokerControlFlow::Stop;
                     }
                 };
                 let fn_ptr = invocation.fn_ptr;
                 loop {
                     println!("invocation: {}", name);
-                    invocation.wait_for_parents();
-                    println!("parent go-ahead");
-                    if let InvokerControlFlow::Continue = *control_flow.read() {
-                        println!("continue");
+                    control_flow = invocation.wait_for_parents();
+                    println!("{} has parent go-ahead", name);
+                    if let InvokerControlFlow::Continue(_) = control_flow {
                     } else {
                         println!("stop");
+                        invocation.signal_children(control_flow.clone());
                         break;
                     }
                     let guard = objekt.read();
-                    let poisoned = guard.poisoned();
+                    let poisoned = (*guard).poisoned();
                     std::mem::drop(guard);
                     if !poisoned {
                         let objekt_safe = AssertUnwindSafe(objekt.clone());
@@ -53,7 +52,14 @@ impl BuiltInvoker {
 
                         match res {
                             Ok(Ok(v)) => {
-                                *control_flow.write() = v;
+                                if invocation.children.len() == 0 {
+                                    if invocation.parents.len() == 0 {
+                                        break;
+                                    }
+                                    continue;
+                                }
+                                println!("{} is signaling children", name);
+                                invocation.signal_children(v);
                             }
                             Ok(Err(v)) => {
                                 let mut guard = objekt.write();
@@ -62,6 +68,13 @@ impl BuiltInvoker {
                                     "Invocation `{}` reported an error, stopping executions: `{}`",
                                     name, v
                                 );
+                                if invocation.children.len() == 0 {
+                                    if invocation.parents.len() == 0 {
+                                        break;
+                                    }
+                                    continue;
+                                }
+                                invocation.signal_children(InvokerControlFlow::Continue(false));
                             }
                             Err(e) => {
                                 let mut guard = objekt.write();
@@ -71,26 +84,45 @@ impl BuiltInvoker {
                                     name,
                                     errors::convert_error_to_string(e)
                                 );
+                                if invocation.children.len() == 0 {
+                                    if invocation.parents.len() == 0 {
+                                        break;
+                                    }
+                                    continue;
+                                }
+                                invocation.signal_children(InvokerControlFlow::Continue(false));
                             }
                         };
                     }
-                    if invocation.children.len() == 0 {
-                        if invocation.parents.len() == 0 {
-                            break;
-                        }
-                        continue;
-                    }
-                    invocation.signal_children();
                 }
+                return control_flow;
             }));
         }
 
+        let mut control_flow = InvokerControlFlow::Continue(false);
+
         for handle in handles {
-            handle.join().unwrap();
+            let invocation_flow = handle.join().unwrap();
+            match control_flow {
+                InvokerControlFlow::Continue(_) => {
+                    control_flow = invocation_flow;
+                }
+                InvokerControlFlow::Restart(_) => {
+                    if let InvokerControlFlow::Continue(_) = invocation_flow {
+                    } else {
+                        control_flow = invocation_flow;
+                    }
+                }
+                InvokerControlFlow::Stop => {
+                    if let InvokerControlFlow::Stop = invocation_flow {
+                        control_flow = invocation_flow;
+                    }
+                }
+            }
         }
 
-        match &*control_flow.read() {
-            InvokerControlFlow::Continue => {
+        match control_flow {
+            InvokerControlFlow::Continue(_) => {
                 //Threads stopped through hanging nodes (nodes without children)
                 return;
             }
@@ -251,7 +283,10 @@ impl Invoker {
                     building_map.insert(parent.clone(), put.clone());
                     put
                 };
-                let wait = Arc::new((Mutex::new(false), Condvar::new()));
+                let wait = Arc::new((
+                    Mutex::new(InvokerControlFlow::Continue(false)),
+                    Condvar::new(),
+                ));
                 println!("pushing a wait");
                 parent_building.children.push(wait.clone());
                 building_map.insert(parent.clone(), parent_building);
@@ -265,7 +300,7 @@ impl Invoker {
             println!("entrypoint: {}", entrypoint);
             for parent in &building_map.get(entrypoint).unwrap().parents {
                 println!("notifying parent");
-                *parent.0.lock() = true;
+                *parent.0.lock() = InvokerControlFlow::Continue(true);
             }
         }
 
@@ -290,9 +325,9 @@ impl Invoker {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum InvokerControlFlow {
-    Continue,
+    Continue(bool),
     Stop,
-    Restart(BuiltInvoker),
+    Restart(Box<BuiltInvoker>),
 }

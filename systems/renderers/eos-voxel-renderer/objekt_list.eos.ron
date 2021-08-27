@@ -8,13 +8,4 @@
             patch: 0,
         )
     ),
-    "other": VoxelRenderer(
-        poisoned: false,
-        tick: 0,
-        version: ( 
-            major: 0,
-            minor: 1,
-            patch: 0,
-        )
-    )
 }

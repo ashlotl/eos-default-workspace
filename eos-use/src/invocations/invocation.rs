@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
-use crossbeam_channel::{Receiver, Sender};
 use parking_lot::{Condvar, Mutex, RwLock};
 
 use crate::{invocations::invoker::InvokerControlFlow, objekts::EosObjekt};
 
-pub type WaitType = Arc<(Mutex<bool>, Condvar)>;
+pub type WaitType = Arc<(Mutex<InvokerControlFlow>, Condvar)>;
 
 #[derive(Clone, Debug)]
 pub struct Invocation {
@@ -17,27 +16,36 @@ pub struct Invocation {
 }
 
 impl Invocation {
-    pub fn wait_for_parents(&self) {
+    pub fn wait_for_parents(&self) -> InvokerControlFlow {
+        let mut control_flow = InvokerControlFlow::Continue(false);
         for parent in &self.parents {
-            println!("locking");
             let mut guard = parent.0.lock();
-            println!("locked");
-            if *guard == true {
-                println!("skipping");
-                *guard = false;
+            control_flow = (*guard).clone();
+            if let InvokerControlFlow::Continue(true) = control_flow {
+                *guard = InvokerControlFlow::Continue(false);
             } else {
-                println!("waiting");
                 parent.1.wait(&mut guard);
-                println!("past");
             }
         }
+        control_flow
     }
 
-    pub fn signal_children(&self) {
-        for child in &self.children {
-            // let mut guard = child.0.lock();
-            // *guard = false;
-            while !child.1.notify_one() {}
+    pub fn signal_children(&self, control_flow: InvokerControlFlow) {
+        let mut done_count = 0;
+        let mut done_vec = vec![false; self.children.len()];
+        while done_count < self.children.len() {
+            for i in 0..self.children.len() {
+                if done_vec[i] == false {
+                    let child = &self.children[i];
+                    let mut guard = child.0.lock();
+                    *guard = control_flow.clone();
+                    std::mem::drop(guard);
+                    if child.1.notify_one() {
+                        done_vec[i] = true;
+                        done_count += 1;
+                    }
+                }
+            }
         }
     }
 }
